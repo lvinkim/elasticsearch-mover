@@ -1,0 +1,13 @@
+{
+  "name": "lvinkim/elasticsearch-mover",
+  "require": {},
+  "repositories": [
+    {
+      "packagist": false
+    },
+    {
+      "type": "composer",
+      "url": "https://packagist.phpcomposer.com"
+    }
+  ]
+}
