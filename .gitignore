@@ -1,5 +1,9 @@
 /*
 
 !.gitignore
+!/bin/
+!/src/
 !composer.json
+!composer.lock
 !docker-compose.yml
+!README.md
