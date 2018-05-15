@@ -17,6 +17,41 @@ class WriterClient
      */
     static private $client;
 
+    public static function createIndex($connectionParams, $index, $type, $properties)
+    {
+        self::initialClient($connectionParams);
+
+        $params = [
+            'index' => $index,
+            'body' => [
+                'mappings' => [
+                    $type => [
+                        'properties' => $properties
+                    ],
+                ],
+            ],
+        ];
+
+        self::$client->indices()->create($params);
+    }
+
+    public static function putMapping($connectionParams, $index, $type, $properties)
+    {
+        self::initialClient($connectionParams);
+
+        $params = [
+            'index' => $index,
+            'type' => $type,
+            'body' => [
+                $type => [
+                    'properties' => $properties,
+                ],
+            ],
+        ];
+
+        self::$client->indices()->putMapping($params);
+    }
+
     public static function indexMultiDocuments($connectionParams, $index, $type, $documents)
     {
 
@@ -25,33 +60,34 @@ class WriterClient
         $number = 0;
         $params = ['body' => []];
         foreach ($documents as $document) {
-            $number++;
 
-            if (!isset($document['id'])) {
-                continue;// Document must have key : 'id'.
+            $_id = $document['_id'] ?? false;
+            $_source = $document['_source'] ?? [];
+            if (!$_id || !$_source) {
+                continue;
             }
 
-            $id = $document['id'];
-//            unset($document['id']);
+            $number++;
 
             $params['body'][] = [
                 'index' => [
                     '_index' => $index,
                     '_type' => $type,
-                    '_id' => $id
+                    '_id' => $_id
                 ]
             ];
 
-            $params['body'][] = $document;
+            $params['body'][] = $_source;
 
-            if ($number % 1000 == 0) {
+            if ($number >= 1000) {
                 self::$client->bulk($params);
+                $number = 0;
                 $params = ['body' => []];
             }
         }
 
         // Send the last batch if it exists
-        if (!empty($params['body'])) {
+        if ($number > 0) {
             self::$client->bulk($params);
         }
     }

@@ -17,40 +17,31 @@ class ReaderClient
      */
     static private $client;
 
-    /**
-     * 聚合名必须为 buckets , 即必须有 $body['aggs']['buckets']['composite']['sources']
-     * @param $connectionParams
-     * @param $index
-     * @param $type
-     * @param $body
-     * @return \Generator
-     */
-    public static function traversalAggregation($connectionParams, $index, $type, $body)
+    public static function existsType($connectionParams, $index, $type)
     {
         self::initialClient($connectionParams);
-
         $params = [
             'index' => $index,
             'type' => $type,
-            'body' => $body
         ];
-        $response = self::$client->search($params);
+        $response = self::$client->indices()->existsType($params);
 
-        do {
-            $buckets = $response['aggregations']['buckets']['buckets'] ?? [];
-            if (count($buckets) > 0) {
-                foreach ($buckets as $bucket) {
-                    yield $bucket;
-                }
-                $lastBucket = end($buckets);
-                $body['aggs']['buckets']['composite']['after'] = $lastBucket['key'];
+        return $response;
+    }
 
-                $params['body'] = $body;
-                $response = self::$client->search($params);
-            } else {
-                break;
-            }
-        } while (1);
+    public static function getMapping($connectionParams, $index, $type)
+    {
+        self::initialClient($connectionParams);
+        $params = [
+            'index' => $index,
+            'type' => $type,
+        ];
+        $response = self::$client->indices()->getMapping($params);
+
+        $properties = $response[$index]['mappings'][$type]['properties'] ?? [];
+
+        return $properties;
+
     }
 
     public static function traversalDocuments($connectionParams, $index, $type, $body = null)
@@ -68,7 +59,7 @@ class ReaderClient
 
         $params = [
             "scroll" => "30s",
-            "size" => 500,
+            "size" => 1000,
             'index' => $index,
             'type' => $type,
             'body' => $body
@@ -78,9 +69,9 @@ class ReaderClient
 
         do {
             if (isset($response['hits']['hits']) && count($response['hits']['hits']) > 0) {
-                $products = $response['hits']['hits'];
-                foreach ($products as $product) {
-                    yield $product;
+                $documents = $response['hits']['hits'];
+                foreach ($documents as $document) {
+                    yield $document;
                 }
 
                 $scroll_id = $response['_scroll_id'];
@@ -93,23 +84,6 @@ class ReaderClient
                 break;
             }
         } while (1);
-    }
-
-
-    public static function searchByJson($connectionParams, $index, $type, $json)
-    {
-
-        self::initialClient($connectionParams);
-
-        $params = [
-            'index' => $index,
-            'type' => $type,
-            'body' => $json
-        ];
-
-        $results = self::$client->search($params);
-
-        return $results;
     }
 
     public static function initialClient($connectionParams)
