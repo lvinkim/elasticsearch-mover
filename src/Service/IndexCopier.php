@@ -9,11 +9,14 @@
 namespace App\Service;
 
 
-class IndexMover
+use App\ElasticSearch\ReaderClient;
+use App\ElasticSearch\WriterClient;
+
+class IndexCopier
 {
-    public static function move($fromHost, $fromIndex, $fromType, $toHost, $toIndex, $toType)
+    public static function copy($fromHost, $fromIndex, $fromType, $toHost, $toIndex, $toType)
     {
-        $documents = \App\ElasticSearch\ReaderClient::traversalDocuments($fromHost, $fromIndex, $fromType);
+        $documents = ReaderClient::traversalDocuments($fromHost, $fromIndex, $fromType);
 
         $bulkDocuments = [];
         $cursor = 0;
@@ -22,12 +25,12 @@ class IndexMover
             echo $cursor . PHP_EOL;
             $bulkDocuments[] = $document;
             if (count($bulkDocuments) >= 1000) {
-                \App\ElasticSearch\WriterClient::indexMultiDocuments($toHost, $toIndex, $toType, $bulkDocuments);
+                WriterClient::indexMultiDocuments($toHost, $toIndex, $toType, $bulkDocuments);
                 $bulkDocuments = [];
             }
         }
         if (count($bulkDocuments)) {
-            \App\ElasticSearch\WriterClient::indexMultiDocuments($toHost, $toIndex, $toType, $bulkDocuments);
+            WriterClient::indexMultiDocuments($toHost, $toIndex, $toType, $bulkDocuments);
         }
     }
 }

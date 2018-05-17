@@ -8,27 +8,27 @@
 
 namespace App\Command;
 
-use App\Service\IndexMover;
-use App\Service\MappingMover;
+use App\Service\IndexCopier;
+use App\Service\MappingCopier;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class MoveCommand extends Command
+class CopyIndexCommand extends Command
 {
     protected function configure()
     {
-        $this->setName('app:move')
+        $this->setName('cmd:copy:index')
             ->addOption('from-host', null, InputOption::VALUE_REQUIRED)
             ->addOption('from-index', null, InputOption::VALUE_REQUIRED)
             ->addOption('from-type', null, InputOption::VALUE_REQUIRED)
             ->addOption('to-host', null, InputOption::VALUE_REQUIRED)
             ->addOption('to-index', null, InputOption::VALUE_REQUIRED)
             ->addOption('to-type', null, InputOption::VALUE_REQUIRED)
-            ->addOption('action', null, InputOption::VALUE_OPTIONAL, '', 'index')
-            ->setDescription('索引数据迁移');
+            ->addOption('limit', null, InputOption::VALUE_REQUIRED)
+            ->setDescription('将一个索引的数据复制到另一个索引中');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -39,15 +39,8 @@ class MoveCommand extends Command
         $toHost = $input->getOption('to-host');
         $toIndex = $input->getOption('to-index');
         $toType = $input->getOption('to-type');
-        $action = $input->getOption('action');
 
-        if ('index' === $action) {
-            IndexMover::move($fromHost, $fromIndex, $fromType, $toHost, $toIndex, $toType);
-        } elseif ('mapping' === $action) {
-            MappingMover::move($fromHost, $fromIndex, $fromType, $toHost, $toIndex, $toType);
-        } else {
-            $output->writeln("error action '{$action}'");
-        }
+        IndexCopier::copy($fromHost, $fromIndex, $fromType, $toHost, $toIndex, $toType);
 
         $output->writeln('done');
     }

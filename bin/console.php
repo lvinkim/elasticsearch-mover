@@ -13,7 +13,9 @@ use Symfony\Component\Console\Application;
 
 $application = new Application();
 
-$application->add(new App\Command\MoveCommand());
+$application->add(new App\Command\CopyIndexCommand());
+$application->add(new App\Command\ExportMappingCommand());
+$application->add(new App\Command\ImportIndexCommand());
 
 try {
     $application->run();

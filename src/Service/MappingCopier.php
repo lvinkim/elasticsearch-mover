@@ -12,9 +12,9 @@ namespace App\Service;
 use App\ElasticSearch\ReaderClient;
 use App\ElasticSearch\WriterClient;
 
-class MappingMover
+class MappingCopier
 {
-    public static function move($fromHost, $fromIndex, $fromType, $toHost, $toIndex, $toType)
+    public static function copy($fromHost, $fromIndex, $fromType, $toHost, $toIndex, $toType)
     {
         $properties = ReaderClient::getMapping($fromHost, $fromIndex, $fromType);
 

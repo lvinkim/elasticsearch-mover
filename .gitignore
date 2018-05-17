@@ -3,6 +3,7 @@
 !.gitignore
 !/bin/
 !/src/
+!/var/
 !composer.json
 !composer.lock
 !docker-compose.yml

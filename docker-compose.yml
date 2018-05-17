@@ -1,8 +1,20 @@
 version: '3'
 
 services:
-  app:
+  console:
     image: lvinkim/php-env-docker:latest
     volumes:
       - ".:/var/www/html"
     working_dir: /var/www/html
+    entrypoint:
+      - php
+      - bin/console.php
+
+  install:
+    image: lvinkim/php-env-docker:latest
+    volumes:
+      - ".:/var/www/html"
+    working_dir: /var/www/html
+    command:
+      - composer
+      - install
