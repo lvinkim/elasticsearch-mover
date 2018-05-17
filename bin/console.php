@@ -13,8 +13,11 @@ use Symfony\Component\Console\Application;
 
 $application = new Application();
 
+$application->add(new App\Command\CopyMappingCommand());
 $application->add(new App\Command\CopyIndexCommand());
 $application->add(new App\Command\ExportMappingCommand());
+$application->add(new App\Command\ExportIndexCommand());
+$application->add(new App\Command\ImportMappingCommand());
 $application->add(new App\Command\ImportIndexCommand());
 
 try {
