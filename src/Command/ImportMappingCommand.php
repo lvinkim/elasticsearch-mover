@@ -20,11 +20,22 @@ class ImportMappingCommand extends Command
     protected function configure()
     {
         $this->setName('cmd:import:mapping')
+            ->addOption('host', null, InputOption::VALUE_REQUIRED)
+            ->addOption('index', null, InputOption::VALUE_REQUIRED)
+            ->addOption('type', null, InputOption::VALUE_REQUIRED)
+            ->addOption('input', null, InputOption::VALUE_REQUIRED)
             ->setDescription('导入索引的 mapping 配置');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $host = $input->getOption('host');
+        $index = $input->getOption('index');
+        $type = $input->getOption('type');
+        $inputFile = $input->getOption('input');
+
+        MappingCopier::import($host, $index, $type, $inputFile);
+
         $output->writeln('done');
     }
 

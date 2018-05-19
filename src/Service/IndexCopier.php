@@ -33,4 +33,39 @@ class IndexCopier
             WriterClient::indexMultiDocuments($toHost, $toIndex, $toType, $bulkDocuments);
         }
     }
+
+    public static function export($host, $index, $type, $output, $limit = 0)
+    {
+        $documents = ReaderClient::traversalDocuments($host, $index, $type);
+
+        $cursor = 0;
+        foreach ($documents as $document) {
+            $cursor++;
+            echo $cursor . PHP_EOL;
+            if ($limit && $cursor > $limit) {
+                break;
+            }
+            FileHelper::append($output, $document);
+        }
+    }
+
+    public static function import($host, $index, $type, $input)
+    {
+        $documents = FileHelper::readLines($input);
+
+        $bulkDocuments = [];
+        $cursor = 0;
+        foreach ($documents as $document) {
+            $cursor++;
+            echo $cursor . PHP_EOL;
+            $bulkDocuments[] = $document;
+            if (count($bulkDocuments) >= 1000) {
+                WriterClient::indexMultiDocuments($host, $index, $type, $bulkDocuments);
+                $bulkDocuments = [];
+            }
+        }
+        if (count($bulkDocuments)) {
+            WriterClient::indexMultiDocuments($host, $index, $type, $bulkDocuments);
+        }
+    }
 }

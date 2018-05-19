@@ -20,11 +20,23 @@ class ExportMappingCommand extends Command
     protected function configure()
     {
         $this->setName('cmd:export:mapping')
+            ->addOption('host', null, InputOption::VALUE_REQUIRED)
+            ->addOption('index', null, InputOption::VALUE_REQUIRED)
+            ->addOption('type', null, InputOption::VALUE_REQUIRED)
+            ->addOption('output', null, InputOption::VALUE_REQUIRED)
             ->setDescription('导出索引的 mapping 配置');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+
+        $host = $input->getOption('host');
+        $index = $input->getOption('index');
+        $type = $input->getOption('type');
+        $outputFile = $input->getOption('output');
+
+        MappingCopier::export($host, $index, $type, $outputFile);
+
         $output->writeln('done');
     }
 
